@@ -1,0 +1,108 @@
+[0m15:39:50.291634 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108a99970>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x106b4b320>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108e65af0>]}
+
+
+============================== 15:39:50.294139 | 445a78b4-62fa-4f69-87ac-5b1ef3cb672d ==============================
+[0m15:39:50.294139 [info ] [MainThread]: Running with dbt=1.10.4
+[0m15:39:50.294416 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'write_json': 'True', 'log_cache_events': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': '/Users/blackkite/.dbt', 'version_check': 'True', 'warn_error': 'None', 'log_path': 'logs', 'debug': 'False', 'fail_fast': 'False', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'empty': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'introspect': 'True', 'static_parser': 'True', 'invocation_command': 'dbt init', 'target_path': 'None', 'log_format': 'default', 'send_anonymous_usage_stats': 'True'}
+[0m15:39:56.393755 [debug] [MainThread]: Starter project path: /Users/blackkite/Documents/RickhouseMedia/CentralDW/codebase/.venv/lib/python3.12/site-packages/dbt/include/starter_project
+[0m15:39:56.403472 [info ] [MainThread]: 
+Your new dbt project "CentralDataWarehouse" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+[0m15:39:56.403937 [info ] [MainThread]: Setting up your profile.
+[0m15:42:08.393236 [info ] [MainThread]: Profile CentralDataWarehouse written to /Users/blackkite/.dbt/profiles.yml using target's profile_template.yml and your supplied values. Run 'dbt debug' to validate the connection.
+[0m15:42:08.401511 [debug] [MainThread]: Resource report: {"command_name": "init", "command_success": true, "command_wall_clock_time": 138.13991, "process_in_blocks": "0", "process_kernel_time": 0.122751, "process_mem_max_rss": "109051904", "process_out_blocks": "0", "process_user_time": 0.578339}
+[0m15:42:08.402784 [debug] [MainThread]: Command `dbt init` succeeded at 15:42:08.402357 after 138.14 seconds
+[0m15:42:08.403860 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109066270>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10941c4a0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10934e6c0>]}
+[0m15:42:08.404438 [debug] [MainThread]: Flushing usage events
+[0m15:42:08.945602 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m15:42:16.817066 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1088f7e90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108f66b70>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108f66870>]}
+
+
+============================== 15:42:16.819663 | ebad5cfd-1f7c-49a7-acea-a9dbdbe6b1f1 ==============================
+[0m15:42:16.819663 [info ] [MainThread]: Running with dbt=1.10.4
+[0m15:42:16.819917 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'fail_fast': 'False', 'profiles_dir': '/Users/blackkite/.dbt', 'log_path': 'logs', 'version_check': 'True', 'debug': 'False', 'use_colors': 'True', 'use_experimental_parser': 'False', 'empty': 'None', 'quiet': 'False', 'no_print': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'invocation_command': 'dbt debug', 'static_parser': 'True', 'log_format': 'default', 'target_path': 'None', 'introspect': 'True', 'send_anonymous_usage_stats': 'True'}
+[0m15:42:16.829163 [info ] [MainThread]: dbt version: 1.10.4
+[0m15:42:16.829362 [info ] [MainThread]: python version: 3.12.8
+[0m15:42:16.829487 [info ] [MainThread]: python path: /Users/blackkite/Documents/RickhouseMedia/CentralDW/codebase/.venv/bin/python3
+[0m15:42:16.829604 [info ] [MainThread]: os info: macOS-15.4.1-arm64-arm-64bit
+[0m15:42:16.857334 [info ] [MainThread]: Using profiles dir at /Users/blackkite/.dbt
+[0m15:42:16.857566 [info ] [MainThread]: Using profiles.yml file at /Users/blackkite/.dbt/profiles.yml
+[0m15:42:16.857692 [info ] [MainThread]: Using dbt_project.yml file at /Users/blackkite/Documents/RickhouseMedia/CentralDW/codebase/dbt_project.yml
+[0m15:42:16.858064 [info ] [MainThread]: adapter type: postgres
+[0m15:42:16.858182 [info ] [MainThread]: adapter version: 1.9.0
+[0m15:42:16.858302 [info ] [MainThread]: Configuration:
+[0m15:42:16.858405 [info ] [MainThread]:   profiles.yml file [[32mOK found and valid[0m]
+[0m15:42:16.858507 [info ] [MainThread]:   dbt_project.yml file [[31mERROR not found[0m]
+[0m15:42:16.858611 [info ] [MainThread]: Required dependencies:
+[0m15:42:16.858740 [debug] [MainThread]: Executing "git --help"
+[0m15:42:16.876513 [debug] [MainThread]: STDOUT: "b"usage: git [-v | --version] [-h | --help] [-C <path>] [-c <name>=<value>]\n           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]\n           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]\n           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]\n           [--super-prefix=<path>] [--config-env=<name>=<envvar>]\n           <command> [<args>]\n\nThese are common Git commands used in various situations:\n\nstart a working area (see also: git help tutorial)\n   clone     Clone a repository into a new directory\n   init      Create an empty Git repository or reinitialize an existing one\n\nwork on the current change (see also: git help everyday)\n   add       Add file contents to the index\n   mv        Move or rename a file, a directory, or a symlink\n   restore   Restore working tree files\n   rm        Remove files from the working tree and from the index\n\nexamine the history and state (see also: git help revisions)\n   bisect    Use binary search to find the commit that introduced a bug\n   diff      Show changes between commits, commit and working tree, etc\n   grep      Print lines matching a pattern\n   log       Show commit logs\n   show      Show various types of objects\n   status    Show the working tree status\n\ngrow, mark and tweak your common history\n   branch    List, create, or delete branches\n   commit    Record changes to the repository\n   merge     Join two or more development histories together\n   rebase    Reapply commits on top of another base tip\n   reset     Reset current HEAD to the specified state\n   switch    Switch branches\n   tag       Create, list, delete or verify a tag object signed with GPG\n\ncollaborate (see also: git help workflows)\n   fetch     Download objects and refs from another repository\n   pull      Fetch from and integrate with another repository or a local branch\n   push      Update remote refs along with associated objects\n\n'git help -a' and 'git help -g' list available subcommands and some\nconcept guides. See 'git help <command>' or 'git help <concept>'\nto read about a specific subcommand or concept.\nSee 'git help git' for an overview of the system.\n""
+[0m15:42:16.876861 [debug] [MainThread]: STDERR: "b''"
+[0m15:42:16.876992 [info ] [MainThread]:  - git [[32mOK found[0m]
+
+[0m15:42:16.877124 [info ] [MainThread]: Connection:
+[0m15:42:16.877260 [info ] [MainThread]:   host: centraldatawarehouse.cxe84cskksjw.us-east-1.rds.amazonaws.com
+[0m15:42:16.877367 [info ] [MainThread]:   port: 5432
+[0m15:42:16.877476 [info ] [MainThread]:   user: postgres
+[0m15:42:16.877574 [info ] [MainThread]:   database: centralDW
+[0m15:42:16.877671 [info ] [MainThread]:   schema: staging
+[0m15:42:16.877772 [info ] [MainThread]:   connect_timeout: 10
+[0m15:42:16.877873 [info ] [MainThread]:   role: None
+[0m15:42:16.877968 [info ] [MainThread]:   search_path: None
+[0m15:42:16.878063 [info ] [MainThread]:   keepalives_idle: 0
+[0m15:42:16.878159 [info ] [MainThread]:   sslmode: None
+[0m15:42:16.878258 [info ] [MainThread]:   sslcert: None
+[0m15:42:16.878356 [info ] [MainThread]:   sslkey: None
+[0m15:42:16.878449 [info ] [MainThread]:   sslrootcert: None
+[0m15:42:16.878544 [info ] [MainThread]:   application_name: dbt
+[0m15:42:16.878637 [info ] [MainThread]:   retries: 1
+[0m15:42:16.878915 [info ] [MainThread]: Registered adapter: postgres=1.9.0
+[0m15:42:16.945843 [debug] [MainThread]: Acquiring new postgres connection 'debug'
+[0m15:42:16.966221 [debug] [MainThread]: Using postgres connection "debug"
+[0m15:42:16.966390 [debug] [MainThread]: On debug: select 1 as id
+[0m15:42:16.966500 [debug] [MainThread]: Opening a new connection, currently in state init
+[0m15:42:18.655123 [debug] [MainThread]: Postgres adapter: Got a retryable error when attempting to open a postgres connection.
+1 attempts remaining. Retrying in 0 seconds.
+Error:
+connection to server at "centraldatawarehouse.cxe84cskksjw.us-east-1.rds.amazonaws.com" (23.23.114.61), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+connection to server at "centraldatawarehouse.cxe84cskksjw.us-east-1.rds.amazonaws.com" (23.23.114.61), port 5432 failed: FATAL:  no pg_hba.conf entry for host "79.208.251.78", user "postgres", database "centralDW", no encryption
+
+[0m15:42:19.740249 [debug] [MainThread]: Postgres adapter: Error running SQL: select 1 as id
+[0m15:42:19.741550 [debug] [MainThread]: Postgres adapter: Rolling back transaction.
+[0m15:42:19.742670 [debug] [MainThread]: On debug: No close available on handle
+[0m15:42:19.743637 [info ] [MainThread]:   Connection test: [[31mERROR[0m]
+
+[0m15:42:19.744429 [info ] [MainThread]: [31m2 checks failed:[0m
+[0m15:42:19.744932 [info ] [MainThread]: Project loading failed for the following reason:
+ project path </Users/blackkite/Documents/RickhouseMedia/CentralDW/codebase/dbt_project.yml> not found
+
+[0m15:42:19.745411 [info ] [MainThread]: dbt was unable to connect to the specified database.
+The database returned the following error:
+
+  >Database Error
+  connection to server at "centraldatawarehouse.cxe84cskksjw.us-east-1.rds.amazonaws.com" (23.23.114.61), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+  connection to server at "centraldatawarehouse.cxe84cskksjw.us-east-1.rds.amazonaws.com" (23.23.114.61), port 5432 failed: FATAL:  no pg_hba.conf entry for host "79.208.251.78", user "postgres", database "centralDW", no encryption
+  
+
+Check your database credentials and try again. For more information, visit:
+https://docs.getdbt.com/docs/configure-your-profile
+
+
+[0m15:42:19.752798 [debug] [MainThread]: Resource report: {"command_name": "debug", "command_success": false, "command_wall_clock_time": 2.9662745, "process_in_blocks": "0", "process_kernel_time": 0.153868, "process_mem_max_rss": "123650048", "process_out_blocks": "0", "process_user_time": 0.649823}
+[0m15:42:19.753878 [debug] [MainThread]: Command `dbt debug` failed at 15:42:19.753632 after 2.97 seconds
+[0m15:42:19.754406 [debug] [MainThread]: Connection 'debug' was properly closed.
+[0m15:42:19.754801 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x10948ade0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x108afbe60>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x109055640>]}
+[0m15:42:19.755250 [debug] [MainThread]: Flushing usage events
+[0m15:42:20.243768 [debug] [MainThread]: An error was encountered while trying to flush usage events
