@@ -1,0 +1,245 @@
+version: 2
+
+models:
+  - name: stg_cad__ad_accounts
+    description: "Standardized ad account information from CAD tool"
+    columns:
+      - name: ad_account_id
+        description: "Primary key - internal ad account ID"
+        tests:
+          - unique
+          - not_null
+      - name: meta_ad_account_id
+        description: "Platform-specific ad account ID (e.g., Meta/Facebook)"
+      - name: ad_account_name
+        description: "Display name for the ad account"
+      - name: account_industry
+        description: "Industry classification for the account"
+
+  - name: stg_cad__campaigns_meta
+    description: "Campaign metadata from CAD tool"
+    columns:
+      - name: campaign_id
+        description: "Primary key - internal campaign ID"
+        tests:
+          - unique
+          - not_null
+      - name: ad_account_id
+        description: "References ad account - foreign key"
+        tests:
+          - not_null
+
+  - name: stg_cad__ad_set_meta
+    description: "Ad set metadata and targeting information from CAD tool"
+    columns:
+      - name: ad_set_id
+        description: "Primary key - internal ad set ID"
+        tests:
+          - unique
+          - not_null
+      - name: targeting
+        description: "JSON field containing targeting criteria - useful for persona analysis"
+
+  - name: stg_cad__ads
+    description: "Individual ads from CAD tool"
+    columns:
+      - name: ad_id
+        description: "Primary key - internal ad ID"
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_cad__ads_meta
+    description: "Ad metadata and configuration from CAD tool"
+    columns:
+      - name: ads_meta_id
+        description: "Primary key - ads meta ID"
+        tests:
+          - unique
+          - not_null
+      - name: ad_id
+        description: "References ads table - foreign key"
+
+  - name: stg_cad__ads_creatives_meta
+    description: "Creative assets and content from CAD tool"
+    columns:
+      - name: ad_creative_id
+        description: "Primary key - creative ID"
+        tests:
+          - unique
+          - not_null
+      - name: body
+        description: "Ad body text - key for persona messaging analysis"
+      - name: headline
+        description: "Ad headline - key for persona messaging analysis"
+
+  - name: stg_cad__ads_analysis
+    description: "Basic ad analysis from CAD tool"
+    columns:
+      - name: ad_analysis_id
+        description: "Primary key - analysis ID"
+        tests:
+          - unique
+          - not_null
+      - name: audio_transcription
+        description: "Audio content transcription for persona analysis"
+      - name: visual_transcription
+        description: "Visual content description for persona analysis"
+
+  - name: stg_cad__creative_analysis
+    description: "Detailed creative analysis with persona attributes from CAD tool - KEY FOR PERSONA GAP ANALYSIS"
+    columns:
+      - name: cad_creative_analysis_id
+        description: "Primary key - creative analysis ID"
+        tests:
+          - unique
+          - not_null
+      - name: persona_attributes
+        description: "JSON field containing persona attributes detected in ads - CRITICAL for gap analysis"
+      - name: core_persona
+        description: "Primary persona identified for this creative"
+      - name: value_propositions
+        description: "JSON field containing value propositions - compare with review value props"
+      - name: problems
+        description: "JSON field containing problems addressed - compare with review problems"
+      - name: barriers
+        description: "JSON field containing barriers addressed - compare with review barriers"
+
+  - name: stg_cad__ads_insights_meta
+    description: "Ad performance metrics from CAD tool - KEY FOR PERFORMANCE ANALYSIS"
+    columns:
+      - name: ad_insights_id
+        description: "Primary key - insights ID"
+        tests:
+          - unique
+          - not_null
+      - name: ads_meta_id
+        description: "References ads_meta table - foreign key"
+      - name: roas
+        description: "Return on ad spend - key performance indicator"
+      - name: ctr
+        description: "Click-through rate - engagement metric"
+      - name: amount_spent
+        description: "Total spend for performance analysis"
+
+  - name: stg_cad__unique_tags
+    description: "Unique tags from CAD tool tagging system"
+    columns:
+      - name: cad_unique_tag_id
+        description: "Primary key - unique tag ID"
+        tests:
+          - unique
+          - not_null
+      - name: source_system
+        description: "Always 'cad' - helps distinguish from review tags"
+      - name: tag_type
+        description: "Type of tag (e.g., media, persona, concept)"
+
+  - name: stg_cad__ad_tags
+    description: "Tag assignments to ads from CAD tool"
+    columns:
+      - name: cad_ad_tag_id
+        description: "Primary key - ad tag assignment ID"
+        tests:
+          - unique
+          - not_null
+      - name: source_system
+        description: "Always 'cad' - helps distinguish from review tags"
+
+  - name: stg_cad__tag_clusters
+    description: "Tag clustering from CAD tool"
+    columns:
+      - name: cad_tag_cluster_id
+        description: "Primary key - tag cluster ID"
+        tests:
+          - unique
+          - not_null
+      - name: source_system
+        description: "Always 'cad' - helps distinguish from review clusters"
+
+  - name: stg_cad__algorithm_tag_assign
+    description: "Algorithm-based tag assignments from CAD tool"
+    columns:
+      - name: cad_algorithm_tag_assign_id
+        description: "Primary key - algorithm assignment ID"
+        tests:
+          - unique
+          - not_null
+      - name: source_system
+        description: "Always 'cad' - helps distinguish from review assignments"
+
+  - name: stg_review__reviews
+    description: "Customer reviews with persona insights - KEY FOR PERSONA GAP ANALYSIS"
+    columns:
+      - name: review_id
+        description: "Primary key - review ID"
+        tests:
+          - unique
+          - not_null
+      - name: ad_account_id
+        description: "References ad account - foreign key for linking with ads"
+      - name: r_persona_attributes
+        description: "JSON field containing persona attributes from reviews - CRITICAL for gap analysis"
+      - name: r_value_propositions
+        description: "JSON field containing value propositions from reviews - compare with ad value props"
+      - name: r_problems
+        description: "JSON field containing problems from reviews - compare with ad problems"
+      - name: r_barriers
+        description: "JSON field containing barriers from reviews - compare with ad barriers"
+
+  - name: stg_review__ad_creative_analysis
+    description: "Creative analysis from review tool perspective"
+    columns:
+      - name: review_creative_analysis_id
+        description: "Primary key - creative analysis ID"
+        tests:
+          - unique
+          - not_null
+      - name: ad_account_id
+        description: "References ad account - foreign key"
+      - name: persona_attributes
+        description: "JSON field containing persona attributes from review perspective"
+
+  - name: stg_review__unique_tags
+    description: "Unique tags from review tool tagging system"
+    columns:
+      - name: review_unique_tag_id
+        description: "Primary key - unique tag ID"
+        tests:
+          - unique
+          - not_null
+      - name: source_system
+        description: "Always 'review' - helps distinguish from CAD tags"
+
+  - name: stg_review__ad_tags
+    description: "Tag assignments to ads from review tool"
+    columns:
+      - name: review_ad_tag_id
+        description: "Primary key - ad tag assignment ID"
+        tests:
+          - unique
+          - not_null
+      - name: source_system
+        description: "Always 'review' - helps distinguish from CAD tags"
+
+  - name: stg_review__tag_clusters
+    description: "Tag clustering from review tool"
+    columns:
+      - name: review_tag_cluster_id
+        description: "Primary key - tag cluster ID"
+        tests:
+          - unique
+          - not_null
+      - name: source_system
+        description: "Always 'review' - helps distinguish from CAD clusters"
+
+  - name: stg_review__algorithm_tag_assign
+    description: "Algorithm-based tag assignments from review tool"
+    columns:
+      - name: review_algorithm_tag_assign_id
+        description: "Primary key - algorithm assignment ID"
+        tests:
+          - unique
+          - not_null
+      - name: source_system
+        description: "Always 'review' - helps distinguish from CAD assignments" 

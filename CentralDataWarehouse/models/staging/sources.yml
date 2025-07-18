@@ -14,6 +14,10 @@ sources:
       - name: ads_analysis
       - name: creative_analysis
       - name: ads_insights_meta
+      - name: unique_tags
+      - name: ad_tags
+      - name: tag_clusters
+      - name: algorithm_tag_assign
 
   - name: raw_review_public
     description: "Raw data from the Reviews tool, loaded by Fivetran."
