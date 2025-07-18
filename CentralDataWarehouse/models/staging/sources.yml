@@ -1,0 +1,28 @@
+version: 2
+
+sources:
+  - name: raw_cad_public
+    description: "Raw data from the CAD tool, loaded by Fivetran."
+    schema: raw_cad_public # This is the schema where Fivetran lands the data
+    tables:
+      - name: ad_accounts
+      - name: campaigns_meta
+      - name: ad_set_meta
+      - name: ads
+      - name: ads_meta
+      - name: ads_creatives_meta
+      - name: ads_analysis
+      - name: creative_analysis
+      - name: ads_insights_meta
+
+  - name: raw_review_public
+    description: "Raw data from the Reviews tool, loaded by Fivetran."
+    schema: raw_review_public # This is the schema where Fivetran lands the data
+    tables:
+      - name: reviews
+      - name: ad_creative_analysis
+      - name: ad_insights
+      - name: unique_tags
+      - name: ad_tags
+      - name: tag_clusters
+      - name: algorithm_tag_assign
