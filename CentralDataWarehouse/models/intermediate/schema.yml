@@ -1,0 +1,237 @@
+version: 2
+
+models:
+  # Review JSON Normalization Models
+  - name: int_review_persona_attributes
+    description: "Normalized persona attributes from customer reviews - key input for gap analysis"
+    columns:
+      - name: review_id
+        description: "References the original review"
+        tests:
+          - not_null
+      - name: ad_account_id
+        description: "Links to ad accounts for cross-source analysis"
+        tests:
+          - not_null
+      - name: persona_attribute
+        description: "Normalized persona attribute (e.g., 'busy professional', 'health-conscious')"
+        tests:
+          - not_null
+      - name: confidence_score
+        description: "AI confidence score for persona attribute extraction"
+      - name: source_system
+        description: "Always 'review' for this model"
+
+  - name: int_review_value_propositions
+    description: "Normalized value propositions from customer reviews"
+    columns:
+      - name: review_id
+        description: "References the original review"
+        tests:
+          - not_null
+      - name: value_proposition
+        description: "Normalized value proposition mentioned in review"
+        tests:
+          - not_null
+      - name: importance_score
+        description: "Importance score for this value proposition"
+      - name: sentiment
+        description: "Sentiment associated with this value proposition"
+
+  - name: int_review_problems
+    description: "Normalized problems from customer reviews"
+    columns:
+      - name: review_id
+        description: "References the original review"
+        tests:
+          - not_null
+      - name: problem
+        description: "Normalized problem mentioned in review"
+        tests:
+          - not_null
+      - name: severity_score
+        description: "Severity score for this problem"
+      - name: problem_category
+        description: "Category classification for the problem"
+
+  - name: int_review_barriers
+    description: "Normalized barriers from customer reviews"
+    columns:
+      - name: review_id
+        description: "References the original review"
+        tests:
+          - not_null
+      - name: barrier
+        description: "Normalized barrier mentioned in review"
+        tests:
+          - not_null
+      - name: impact_score
+        description: "Impact score for this barrier"
+      - name: barrier_type
+        description: "Type classification for the barrier"
+
+  # Ad JSON Normalization Models
+  - name: int_ad_persona_attributes
+    description: "Normalized persona attributes from ad creative analysis"
+    columns:
+      - name: ad_analysis_id
+        description: "References the ad analysis"
+        tests:
+          - not_null
+      - name: ads_meta_id
+        description: "References ads meta for performance linking"
+        tests:
+          - not_null
+      - name: ad_account_id
+        description: "Links to ad accounts for cross-source analysis"
+        tests:
+          - not_null
+      - name: persona_attribute
+        description: "Normalized persona attribute targeted by ad"
+        tests:
+          - not_null
+      - name: core_persona
+        description: "Primary persona identified for this ad"
+      - name: source_system
+        description: "Always 'cad' for this model"
+
+  - name: int_ad_value_propositions
+    description: "Normalized value propositions from ad creative analysis"
+    columns:
+      - name: ad_analysis_id
+        description: "References the ad analysis"
+        tests:
+          - not_null
+      - name: value_proposition
+        description: "Normalized value proposition promoted in ad"
+        tests:
+          - not_null
+      - name: strength_score
+        description: "Strength score for this value proposition in the ad"
+      - name: clarity_score
+        description: "Clarity score for this value proposition"
+
+  - name: int_ad_problems
+    description: "Normalized problems from ad creative analysis"
+    columns:
+      - name: ad_analysis_id
+        description: "References the ad analysis"
+        tests:
+          - not_null
+      - name: problem
+        description: "Normalized problem addressed by ad"
+        tests:
+          - not_null
+      - name: relevance_score
+        description: "Relevance score for this problem"
+      - name: urgency_score
+        description: "Urgency score for this problem"
+
+  - name: int_ad_barriers
+    description: "Normalized barriers from ad creative analysis"
+    columns:
+      - name: ad_analysis_id
+        description: "References the ad analysis"
+        tests:
+          - not_null
+      - name: barrier
+        description: "Normalized barrier addressed by ad"
+        tests:
+          - not_null
+      - name: solution_strength
+        description: "Strength of the solution provided for this barrier"
+      - name: addressability_score
+        description: "How well the ad addresses this barrier"
+
+  # Unified and Analysis Models
+  - name: int_unified_persona_attributes
+    description: "Unified view of persona attributes from both reviews and ads with coverage analysis"
+    columns:
+      - name: ad_account_id
+        description: "Account identifier for analysis"
+        tests:
+          - not_null
+      - name: persona_attribute
+        description: "Normalized persona attribute"
+        tests:
+          - not_null
+      - name: source_system
+        description: "Either 'review' or 'cad'"
+        tests:
+          - not_null
+      - name: coverage_type
+        description: "Whether persona appears in 'both', 'review_only', or 'ad_only'"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['both', 'review_only', 'ad_only']
+      - name: total_review_mentions
+        description: "Total mentions in reviews"
+      - name: total_ad_mentions
+        description: "Total mentions in ads"
+
+  - name: int_persona_performance_scorecard
+    description: "Performance scorecard linking persona attributes to ad performance metrics - KEY MODEL FOR ANALYSIS"
+    columns:
+      - name: ad_account_id
+        description: "Account identifier for analysis"
+        tests:
+          - not_null
+      - name: persona_attribute
+        description: "Normalized persona attribute"
+        tests:
+          - not_null
+      - name: performance_tier
+        description: "Performance tier (top_performer, strong_performer, moderate_performer, weak_performer, poor_performer)"
+        tests:
+          - not_null
+      - name: avg_roas
+        description: "Average ROAS for ads targeting this persona"
+      - name: avg_ctr
+        description: "Average CTR for ads targeting this persona"
+      - name: total_spend
+        description: "Total spend on ads targeting this persona"
+      - name: composite_performance_score
+        description: "Weighted composite performance score"
+      - name: gap_analysis_category
+        description: "Gap analysis category (underperforming_persona, well_served_persona, opportunity_persona, unaddressed_persona)"
+      - name: opportunity_score
+        description: "Opportunity score for targeting this persona (higher = better opportunity)"
+      - name: review_mention_count
+        description: "Number of times this persona is mentioned in reviews"
+
+  - name: int_persona_gap_analysis
+    description: "Final gap analysis identifying underserved personas - PRIMARY OUTPUT FOR DECISION MAKING"
+    columns:
+      - name: ad_account_id
+        description: "Account identifier for analysis"
+        tests:
+          - not_null
+      - name: persona_attribute
+        description: "Normalized persona attribute"
+        tests:
+          - not_null
+      - name: gap_priority
+        description: "Priority level (critical, high, medium, low)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['critical', 'high', 'medium', 'low']
+      - name: gap_type
+        description: "Type of gap (completely_unaddressed, underperforming, moderate_opportunity, well_served)"
+        tests:
+          - not_null
+      - name: recommendation
+        description: "Actionable recommendation for this persona gap"
+        tests:
+          - not_null
+      - name: priority_score
+        description: "Numerical priority score for ranking opportunities"
+      - name: opportunity_level
+        description: "Opportunity level (high_opportunity, medium_opportunity, low_opportunity)"
+      - name: review_count
+        description: "Number of reviews mentioning this persona"
+      - name: ad_count
+        description: "Number of ads targeting this persona"
+      - name: ad_account_name
+        description: "Account name for context" 
