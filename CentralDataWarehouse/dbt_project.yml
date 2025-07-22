@@ -26,9 +26,16 @@ clean-targets:         # directories to be removed by `dbt clean`
 # Configuring seeds
 seeds:
   CentralDataWarehouse:
-    CAD_Reviews_product_matching_analysis:
+    CAD_Reviews_DWH_mapping_table:
       +alias: product_id_mapping_table
       +schema: staging
+      +column_types:
+        ad_account_id: bigint
+        ad_account_name: varchar(255)
+        product: text
+        matched_review_product: text
+        review_account_name: varchar(255)
+        review_account_id: bigint
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models

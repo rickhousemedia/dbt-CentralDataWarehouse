@@ -128,8 +128,24 @@ performance_scoring as (
     from performance_tiers
 ),
 
--- Get review context for gap analysis
-review_context as (
+-- Get cross-account review context using mapping table
+cross_account_review_context as (
+    select
+        cam.cad_account_id,
+        cam.persona_attribute,
+        cam.review_persona_mentions,
+        cam.review_count_with_persona,
+        cam.avg_review_confidence,
+        cam.latest_review_mention,
+        cam.persona_coverage,
+        cam.cross_system_alignment_score,
+        cam.review_account_name,
+        cam.review_account_id
+    from {{ ref('int_cross_account_persona_mapping') }} cam
+),
+
+-- Get traditional review context for non-mapped accounts
+direct_review_context as (
     select
         ad_account_id,
         persona_attribute,
@@ -140,42 +156,64 @@ review_context as (
     group by 1, 2
 ),
 
--- Final scorecard
+-- Final scorecard with enhanced cross-account analysis
 final as (
     select
         ps.*,
-        coalesce(rc.review_mention_count, 0) as review_mention_count,
-        rc.avg_review_confidence,
-        rc.latest_review_date,
         
-        -- Gap analysis flags
+        -- Cross-account review metrics (prioritized)
+        coalesce(carc.review_persona_mentions, drc.review_mention_count, 0) as review_mention_count,
+        coalesce(carc.avg_review_confidence, drc.avg_review_confidence) as avg_review_confidence,
+        coalesce(carc.latest_review_mention, drc.latest_review_date) as latest_review_date,
+        
+        -- Cross-account specific fields
+        carc.persona_coverage,
+        carc.cross_system_alignment_score,
+        carc.review_account_name,
+        carc.review_account_id,
+        case when carc.cad_account_id is not null then 'mapped_account' else 'unmapped_account' end as account_mapping_status,
+        
+        -- Enhanced gap analysis flags
         case 
-            when rc.review_mention_count > 0 and ps.performance_tier in ('poor_performer', 'weak_performer') 
+            when coalesce(carc.review_persona_mentions, drc.review_mention_count, 0) > 0 
+                 and ps.performance_tier in ('poor_performer', 'weak_performer') 
             then 'underperforming_persona'
-            when rc.review_mention_count > 0 and ps.performance_tier in ('top_performer', 'strong_performer') 
+            when coalesce(carc.review_persona_mentions, drc.review_mention_count, 0) > 0 
+                 and ps.performance_tier in ('top_performer', 'strong_performer') 
             then 'well_served_persona'
-            when rc.review_mention_count > 0 and ps.performance_tier = 'moderate_performer' 
+            when coalesce(carc.review_persona_mentions, drc.review_mention_count, 0) > 0 
+                 and ps.performance_tier = 'moderate_performer' 
             then 'opportunity_persona'
-            when rc.review_mention_count > 0 and ps.ad_count = 0 
+            when coalesce(carc.review_persona_mentions, drc.review_mention_count, 0) > 0 
+                 and ps.ad_count = 0 
             then 'unaddressed_persona'
             else 'unknown_persona'
         end as gap_analysis_category,
         
-        -- Opportunity score (higher = better opportunity)
+        -- Enhanced opportunity score with cross-account boost
         case 
-            when rc.review_mention_count > 0 and ps.performance_tier in ('poor_performer', 'weak_performer') 
-            then rc.review_mention_count * 10  -- High opportunity
-            when rc.review_mention_count > 0 and ps.performance_tier = 'moderate_performer' 
-            then rc.review_mention_count * 5   -- Medium opportunity
-            when rc.review_mention_count > 0 and ps.ad_count = 0 
-            then rc.review_mention_count * 15  -- Very high opportunity
+            when coalesce(carc.review_persona_mentions, drc.review_mention_count, 0) > 0 
+                 and ps.performance_tier in ('poor_performer', 'weak_performer') 
+            then (coalesce(carc.review_persona_mentions, drc.review_mention_count, 0) * 10) * 
+                 case when carc.cross_system_alignment_score > 0 then 1.5 else 1.0 end  -- Cross-account boost
+            when coalesce(carc.review_persona_mentions, drc.review_mention_count, 0) > 0 
+                 and ps.performance_tier = 'moderate_performer' 
+            then (coalesce(carc.review_persona_mentions, drc.review_mention_count, 0) * 5) *
+                 case when carc.cross_system_alignment_score > 0 then 1.3 else 1.0 end
+            when coalesce(carc.review_persona_mentions, drc.review_mention_count, 0) > 0 
+                 and ps.ad_count = 0 
+            then (coalesce(carc.review_persona_mentions, drc.review_mention_count, 0) * 15) *
+                 case when carc.cross_system_alignment_score > 0 then 2.0 else 1.0 end  -- Major cross-account boost
             else 0
         end as opportunity_score,
         
         current_timestamp as loaded_at
     from performance_scoring ps
-    left join review_context rc on ps.ad_account_id = rc.ad_account_id 
-                                and ps.persona_attribute = rc.persona_attribute
+    left join cross_account_review_context carc on ps.ad_account_id = carc.cad_account_id 
+                                                  and ps.persona_attribute = carc.persona_attribute
+    left join direct_review_context drc on ps.ad_account_id = drc.ad_account_id 
+                                         and ps.persona_attribute = drc.persona_attribute
+                                         and carc.cad_account_id is null  -- Only use direct context if no cross-account mapping
 )
 
 select * from final 
