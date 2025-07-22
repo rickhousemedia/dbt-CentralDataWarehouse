@@ -23,6 +23,13 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "dbt_packages"
 
 
+# Configuring seeds
+seeds:
+  CentralDataWarehouse:
+    CAD_Reviews_product_matching_analysis:
+      +alias: product_id_mapping_table
+      +schema: staging
+
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
@@ -41,3 +48,4 @@ models:
     marts:
       +materialized: table
       +schema: analytics
+

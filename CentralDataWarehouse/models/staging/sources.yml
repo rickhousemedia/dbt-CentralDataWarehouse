@@ -30,3 +30,10 @@ sources:
       - name: ad_tags
       - name: tag_clusters
       - name: algorithm_tag_assign
+
+  - name: staging
+    description: "Staging schema containing seed data"
+    schema: staging
+    tables:
+      - name: product_id_mapping_table
+        description: "Product matching analysis between CAD and Review systems - from seed data"
