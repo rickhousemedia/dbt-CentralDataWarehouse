@@ -170,8 +170,36 @@ models:
       - name: total_ad_mentions
         description: "Total mentions in ads"
 
+  - name: int_cross_account_persona_mapping
+    description: "ENHANCED: Maps personas between CAD and Review accounts using DWH mapping table - KEY FOR CROSS-SYSTEM ANALYSIS"
+    columns:
+      - name: cad_account_id
+        description: "CAD account ID from mapping table"
+        tests:
+          - not_null
+      - name: review_account_id
+        description: "Review account ID from mapping table"
+      - name: persona_attribute
+        description: "Normalized persona attribute found in both systems"
+        tests:
+          - not_null
+      - name: persona_coverage
+        description: "Coverage type: 'found_in_both', 'cad_only', 'review_only', 'review_only_unmapped'"
+        tests:
+          - not_null
+      - name: cad_persona_mentions
+        description: "Number of times persona mentioned in CAD ads"
+      - name: review_persona_mentions
+        description: "Number of times persona mentioned in reviews"
+      - name: cross_system_alignment_score
+        description: "Score indicating alignment between CAD and Review mentions of this persona"
+      - name: cad_account_name
+        description: "CAD account name from mapping"
+      - name: review_account_name
+        description: "Review account name from mapping"
+
   - name: int_persona_performance_scorecard
-    description: "Performance scorecard linking persona attributes to ad performance metrics - KEY MODEL FOR ANALYSIS"
+    description: "ENHANCED: Performance scorecard with cross-account mapping and boosted opportunity scoring - KEY MODEL FOR ANALYSIS"
     columns:
       - name: ad_account_id
         description: "Account identifier for analysis"
@@ -196,15 +224,25 @@ models:
       - name: gap_analysis_category
         description: "Gap analysis category (underperforming_persona, well_served_persona, opportunity_persona, unaddressed_persona)"
       - name: opportunity_score
-        description: "Opportunity score for targeting this persona (higher = better opportunity)"
+        description: "ENHANCED: Opportunity score with cross-account boost (higher = better opportunity)"
       - name: review_mention_count
         description: "Number of times this persona is mentioned in reviews"
+      - name: persona_coverage
+        description: "Cross-system persona coverage from mapping table"
+      - name: cross_system_alignment_score
+        description: "Alignment score between CAD and Review systems"
+      - name: account_mapping_status
+        description: "Whether account is 'mapped_account' or 'unmapped_account'"
+      - name: review_account_name
+        description: "Name of linked review account (if mapped)"
+      - name: review_account_id
+        description: "ID of linked review account (if mapped)"
 
   - name: int_persona_gap_analysis
-    description: "Final gap analysis identifying underserved personas - PRIMARY OUTPUT FOR DECISION MAKING"
+    description: "ENHANCED: Cross-account gap analysis with mapping insights - PRIMARY OUTPUT FOR DECISION MAKING"
     columns:
-      - name: ad_account_id
-        description: "Account identifier for analysis"
+      - name: cad_account_id
+        description: "CAD account identifier for analysis"
         tests:
           - not_null
       - name: persona_attribute
@@ -212,26 +250,40 @@ models:
         tests:
           - not_null
       - name: gap_priority
-        description: "Priority level (critical, high, medium, low)"
+        description: "ENHANCED: Priority level (critical, high, medium, validation_needed, low)"
         tests:
           - not_null
           - accepted_values:
-              values: ['critical', 'high', 'medium', 'low']
+              values: ['critical', 'high', 'medium', 'validation_needed', 'low']
       - name: gap_type
-        description: "Type of gap (completely_unaddressed, underperforming, moderate_opportunity, well_served)"
+        description: "ENHANCED: Type of gap (completely_unaddressed, underperforming, moderate_opportunity, well_served, ads_without_reviews)"
         tests:
           - not_null
       - name: recommendation
-        description: "Actionable recommendation for this persona gap"
+        description: "ENHANCED: Actionable recommendation with cross-system context"
         tests:
           - not_null
       - name: priority_score
-        description: "Numerical priority score for ranking opportunities"
+        description: "ENHANCED: Numerical priority score with cross-account boost for ranking opportunities"
       - name: opportunity_level
-        description: "Opportunity level (high_opportunity, medium_opportunity, low_opportunity)"
+        description: "ENHANCED: Opportunity level (critical_opportunity, high_opportunity, medium_opportunity_mapped, medium_opportunity, validation_needed, low_opportunity)"
       - name: review_count
         description: "Number of reviews mentioning this persona"
       - name: ad_count
         description: "Number of ads targeting this persona"
       - name: ad_account_name
-        description: "Account name for context" 
+        description: "CAD account name for context"
+      - name: persona_coverage
+        description: "Cross-system persona coverage type"
+      - name: cross_system_alignment_score
+        description: "Alignment score between CAD and Review systems"
+      - name: account_mapping_status
+        description: "Account mapping status (mapped_account, unmapped_account)"
+      - name: review_account_name
+        description: "Name of linked review account (if mapped)"
+      - name: review_account_id
+        description: "ID of linked review account (if mapped)"
+      - name: cross_system_account_summary
+        description: "Summary showing CAD ↔ Review account relationships"
+      - name: priority_rank
+        description: "Numerical rank for ordering (1=highest priority)" 

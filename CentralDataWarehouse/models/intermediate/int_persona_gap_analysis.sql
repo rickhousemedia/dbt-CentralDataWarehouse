@@ -151,45 +151,77 @@ gap_analysis as (
                                             and cp.persona_attribute = ap.persona_attribute
 ),
 
--- Create priority tiers
+-- Create enhanced priority tiers with cross-account awareness
 priority_tiers as (
     select
         *,
         case 
+            when gap_type = 'completely_unaddressed' and opportunity_level = 'critical_opportunity' then 'critical'
             when gap_type = 'completely_unaddressed' and opportunity_level = 'high_opportunity' then 'critical'
             when gap_type = 'underperforming' and opportunity_level = 'high_opportunity' then 'high'
-            when gap_type = 'completely_unaddressed' and opportunity_level = 'medium_opportunity' then 'high'
-            when gap_type = 'underperforming' and opportunity_level = 'medium_opportunity' then 'medium'
-            when gap_type = 'moderate_opportunity' and opportunity_level in ('high_opportunity', 'medium_opportunity') then 'medium'
+            when gap_type = 'completely_unaddressed' and opportunity_level = 'medium_opportunity_mapped' then 'high'
+            when gap_type = 'underperforming' and opportunity_level in ('medium_opportunity_mapped', 'medium_opportunity') then 'medium'
+            when gap_type = 'moderate_opportunity' and opportunity_level in ('high_opportunity', 'medium_opportunity_mapped') then 'medium'
+            when gap_type = 'moderate_opportunity' and opportunity_level = 'medium_opportunity' then 'low'
             when gap_type = 'well_served' then 'low'
+            when gap_type = 'ads_without_reviews' then 'validation_needed'
             else 'unknown'
         end as gap_priority,
         
-        -- Create actionable recommendations
+        -- Create enhanced actionable recommendations
         case 
-            when gap_type = 'completely_unaddressed' then 'Create new ad campaigns targeting this persona'
-            when gap_type = 'underperforming' then 'Optimize existing ads or create new creative approaches'
-            when gap_type = 'moderate_opportunity' then 'Consider increasing budget or improving creative'
-            when gap_type = 'well_served' then 'Maintain current approach'
-            else 'Further analysis needed'
+            when gap_type = 'completely_unaddressed' and account_mapping_status = 'mapped_account'
+            then 'CRITICAL: Create new ad campaigns targeting this persona (validated across systems)'
+            when gap_type = 'completely_unaddressed' 
+            then 'HIGH: Create new ad campaigns targeting this persona'
+            when gap_type = 'underperforming' and account_mapping_status = 'mapped_account'
+            then 'OPTIMIZE: Improve existing ads with cross-account insights'
+            when gap_type = 'underperforming' 
+            then 'OPTIMIZE: Improve existing ads or create new creative approaches'
+            when gap_type = 'moderate_opportunity' and account_mapping_status = 'mapped_account'
+            then 'ENHANCE: Scale successful approach with cross-system validation'
+            when gap_type = 'moderate_opportunity' 
+            then 'ENHANCE: Consider increasing budget or improving creative'
+            when gap_type = 'well_served' 
+            then 'MAINTAIN: Continue current successful approach'
+            when gap_type = 'ads_without_reviews'
+            then 'VALIDATE: Check if ad personas resonate with actual customers'
+            else 'INVESTIGATE: Further analysis needed'
         end as recommendation,
         
         current_timestamp as loaded_at
     from gap_analysis
 ),
 
--- Add account context
+-- Add account context with cross-system information
 final as (
     select
         pt.*,
         aa.ad_account_name,
         aa.account_industry,
-        aa.account_description
+        aa.account_description,
+        
+        -- Cross-system context
+        case 
+            when pt.review_account_name is not null 
+            then concat(aa.ad_account_name, ' ↔ ', pt.review_account_name)
+            else aa.ad_account_name
+        end as cross_system_account_summary,
+        
+        -- Enhanced filtering for actionable insights
+        case 
+            when pt.gap_priority = 'critical' then 1
+            when pt.gap_priority = 'high' then 2  
+            when pt.gap_priority = 'medium' then 3
+            when pt.gap_priority = 'validation_needed' then 4
+            else 5
+        end as priority_rank
+        
     from priority_tiers pt
-    join {{ ref('stg_cad__ad_accounts') }} aa on pt.ad_account_id = aa.ad_account_id
-    where pt.gap_priority in ('critical', 'high', 'medium')  -- Focus on actionable gaps
-      and pt.review_count >= 1  -- At least one review mention
-    order by pt.priority_score desc, pt.review_count desc
+    join {{ ref('stg_cad__ad_accounts') }} aa on pt.cad_account_id = aa.ad_account_id
+    where pt.gap_priority in ('critical', 'high', 'medium', 'validation_needed')  -- Focus on actionable gaps
+      and (pt.review_count >= 1 or pt.gap_type = 'ads_without_reviews')  -- Include validation-needed items
+    order by priority_rank asc, pt.priority_score desc, pt.review_count desc
 )
 
 select * from final 
