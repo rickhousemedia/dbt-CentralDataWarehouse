@@ -5,7 +5,7 @@
 {{ config(materialized='table') }}
 
 with ad_personas as (
-    select * from {{ ref('int_ad_persona_attributes') }}
+    select * from {{ ref('int_ad_persona_attributes_from_review_analysis') }}
 ),
 
 ad_performance as (
@@ -22,14 +22,14 @@ ad_performance as (
     from {{ ref('stg_cad__ads_insights_meta') }} ai
 ),
 
--- Join personas with performance data (ad personas already have ads_meta_id)
+-- Join personas with performance data through ad hierarchy (ad_id -> ads_meta_id -> performance)
 persona_performance as (
     select
         ap.persona_attribute,
         ap.persona_value,
         ap.confidence_score,
         ap.ad_account_id,
-        ap.ads_meta_id,
+        am.ads_meta_id,
         perf.amount_spent,
         perf.omni_purchase_value,
         perf.omni_purchase_purchases,
@@ -38,7 +38,8 @@ persona_performance as (
         perf.ad_roas,
         perf.ctr
     from ad_personas ap
-    inner join ad_performance perf on ap.ads_meta_id = perf.ads_meta_id
+    inner join {{ ref('stg_cad__ads_meta') }} am on ap.ad_id = am.ad_id
+    inner join ad_performance perf on am.ads_meta_id = perf.ads_meta_id
 ),
 
 -- Aggregate by persona attribute
