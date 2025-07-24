@@ -286,4 +286,80 @@ models:
       - name: cross_system_account_summary
         description: "Summary showing CAD ↔ Review account relationships"
       - name: priority_rank
-        description: "Numerical rank for ordering (1=highest priority)" 
+        description: "Numerical rank for ordering (1=highest priority)"
+
+  - name: int_persona_review_ranking
+    description: "REPORT 1: Persona attributes ranked by review count - equivalent to source app's cluster ranking"
+    columns:
+      - name: persona_name
+        description: "Persona attribute mentioned in reviews"
+        tests:
+          - not_null
+      - name: account_name
+        description: "Display name of the ad account"
+      - name: ad_account_id
+        description: "Ad account identifier"
+      - name: review_count
+        description: "Number of reviews mentioning this persona"
+      - name: percentage
+        description: "Percentage of total reviews that mention this persona"
+      - name: total_unique_reviews
+        description: "Total number of unique reviews analyzed"
+      - name: volume_category
+        description: "Volume classification: High/Medium/Low/Minimal Volume"
+      - name: review_rank
+        description: "Rank by review count (1 = most mentioned)"
+
+  - name: int_persona_ad_performance
+    description: "REPORT 2: Persona attributes ranked by ad spend with performance metrics (AOV, ROAS, Thumbstop)"
+    columns:
+      - name: persona_attribute
+        description: "Persona attribute from ad analysis"
+        tests:
+          - not_null
+      - name: ad_count
+        description: "Number of ads targeting this persona"
+      - name: total_ad_spend
+        description: "Total advertising spend for this persona"
+      - name: persona_mentions
+        description: "Number of times this persona was mentioned in ads"
+      - name: avg_confidence
+        description: "Average confidence score for persona detection in ads"
+      - name: aov
+        description: "Average Order Value (total purchase value / total purchases)"
+      - name: roas
+        description: "Return on Ad Spend (total purchase value / total ad spend)"
+      - name: thumbstop_rate
+        description: "Video watch rate (3s+ video watches / impressions)"
+      - name: total_purchase_value
+        description: "Total purchase value generated"
+      - name: total_purchases
+        description: "Total number of purchases"
+      - name: total_video_watches
+        description: "Total 3-second video watches"
+      - name: total_impressions
+        description: "Total ad impressions"
+
+  - name: int_persona_opportunity_index
+    description: "REPORT 3: Opportunity Index analysis - calculates review_mentions / ad_spend ratio for persona prioritization"
+    columns:
+      - name: persona_attribute
+        description: "Persona attribute analyzed"
+        tests:
+          - not_null
+      - name: review_count
+        description: "Number of reviews mentioning this persona"
+      - name: review_percentage
+        description: "Percentage of total reviews mentioning this persona"
+      - name: ad_count
+        description: "Number of ads targeting this persona"
+      - name: total_ad_spend
+        description: "Total ad spend for this persona"
+      - name: raw_ratio
+        description: "Raw opportunity ratio (review_count / ad_spend). 999999 = infinite (reviews but no ads)"
+      - name: opportunity_index
+        description: "Normalized opportunity score (0-100). Higher = better opportunity"
+        tests:
+          - not_null
+      - name: opportunity_color
+        description: "Color code for visualization (green = high opportunity, red = low opportunity)" 
