@@ -22,20 +22,35 @@ with review_personas as (
     where r_persona_attributes is not null
 ),
 
--- Extract persona attributes from JSON array
+-- Extract persona attributes from JSON array (handling simple string format)
 normalized_personas as (
     select
         review_id,
         ad_account_id,
         review_date,
         review_author,
-        trim(json_extract_path_text(persona_attr.value, 'attribute')) as persona_attribute,
-        trim(json_extract_path_text(persona_attr.value, 'value')) as persona_value,
-        trim(json_extract_path_text(persona_attr.value, 'confidence')) as confidence_score,
+        -- Parse the string value to extract attribute and value
+        case 
+            when persona_attr_text like '%:%' then trim(split_part(persona_attr_text, ':', 1))
+            else persona_attr_text
+        end as persona_attribute,
+        case 
+            when persona_attr_text like '%:%' then trim(split_part(persona_attr_text, ':', 2))
+            else persona_attr_text
+        end as persona_value,
+        0.8 as confidence_score,  -- Default confidence since not provided in data
         loaded_at
     from review_personas rp
-    cross join json_array_elements(rp.r_persona_attributes) as persona_attr
-    where trim(json_extract_path_text(persona_attr.value, 'attribute')) != ''
+    cross join jsonb_array_elements_text(
+        case 
+            when rp.r_persona_attributes is null then '[]'::jsonb
+            when jsonb_typeof(rp.r_persona_attributes) = 'array' then rp.r_persona_attributes
+            else '[]'::jsonb
+        end
+    ) as persona_attr_text
+    where persona_attr_text is not null 
+      and trim(persona_attr_text) != ''
+      and trim(persona_attr_text) != 'null'
 ),
 
 -- Clean and standardize persona attributes
@@ -47,11 +62,7 @@ final as (
         review_author,
         lower(trim(persona_attribute)) as persona_attribute,
         persona_value,
-        case 
-            when confidence_score ~ '^[0-9]+\.?[0-9]*$' 
-            then confidence_score::numeric 
-            else null 
-        end as confidence_score,
+        confidence_score as confidence_score,
         'review' as source_system,
         loaded_at
     from normalized_personas

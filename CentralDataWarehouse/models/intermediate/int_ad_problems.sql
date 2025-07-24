@@ -41,13 +41,25 @@ normalized_problems as (
         ads_meta_id,
         ad_creative_id,
         ad_account_id,
-        trim(json_extract_path_text(problem.value, 'problem')) as problem,
-        trim(json_extract_path_text(problem.value, 'relevance')) as relevance_score,
-        trim(json_extract_path_text(problem.value, 'urgency')) as urgency_score,
+        trim(jsonb_extract_path_text(problem.value, 'problem')) as problem,
+        trim(jsonb_extract_path_text(problem.value, 'relevance')) as relevance_score,
+        trim(jsonb_extract_path_text(problem.value, 'urgency')) as urgency_score,
         loaded_at
     from ad_with_account awa
-    cross join json_array_elements(awa.problems) as problem
-    where trim(json_extract_path_text(problem.value, 'problem')) != ''
+    cross join jsonb_array_elements(
+        case 
+            when awa.problems is null then '[]'::jsonb
+            when jsonb_typeof(awa.problems) = 'array' then awa.problems
+            when jsonb_typeof(awa.problems) = 'string' then 
+                case 
+                    when trim(awa.problems::text, '"') ~ '^\[.*\]$' then trim(awa.problems::text, '"')::jsonb
+                    else '[]'::jsonb
+                end
+            else '[]'::jsonb
+        end
+    ) as problem
+    where jsonb_extract_path_text(problem.value, 'problem') is not null 
+      and trim(jsonb_extract_path_text(problem.value, 'problem')) != ''
 ),
 
 -- Clean and standardize problems

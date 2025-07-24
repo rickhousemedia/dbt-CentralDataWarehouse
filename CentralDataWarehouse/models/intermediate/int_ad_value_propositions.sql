@@ -41,13 +41,25 @@ normalized_value_props as (
         ads_meta_id,
         ad_creative_id,
         ad_account_id,
-        trim(json_extract_path_text(value_prop.value, 'proposition')) as value_proposition,
-        trim(json_extract_path_text(value_prop.value, 'strength')) as strength_score,
-        trim(json_extract_path_text(value_prop.value, 'clarity')) as clarity_score,
+        trim(jsonb_extract_path_text(value_prop.value, 'proposition')) as value_proposition,
+        trim(jsonb_extract_path_text(value_prop.value, 'strength')) as strength_score,
+        trim(jsonb_extract_path_text(value_prop.value, 'clarity')) as clarity_score,
         loaded_at
     from ad_with_account awa
-    cross join json_array_elements(awa.value_propositions) as value_prop
-    where trim(json_extract_path_text(value_prop.value, 'proposition')) != ''
+    cross join jsonb_array_elements(
+        case 
+            when awa.value_propositions is null then '[]'::jsonb
+            when jsonb_typeof(awa.value_propositions) = 'array' then awa.value_propositions
+            when jsonb_typeof(awa.value_propositions) = 'string' then 
+                case 
+                    when trim(awa.value_propositions::text, '"') ~ '^\[.*\]$' then trim(awa.value_propositions::text, '"')::jsonb
+                    else '[]'::jsonb
+                end
+            else '[]'::jsonb
+        end
+    ) as value_prop
+    where jsonb_extract_path_text(value_prop.value, 'proposition') is not null 
+      and trim(jsonb_extract_path_text(value_prop.value, 'proposition')) != ''
 ),
 
 -- Clean and standardize value propositions

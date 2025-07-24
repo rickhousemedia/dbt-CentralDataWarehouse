@@ -29,13 +29,21 @@ normalized_problems as (
         ad_account_id,
         review_date,
         review_author,
-        trim(json_extract_path_text(problem.value, 'problem')) as problem,
-        trim(json_extract_path_text(problem.value, 'severity')) as severity_score,
-        trim(json_extract_path_text(problem.value, 'category')) as problem_category,
+        problem_text as problem,
+        '3' as severity_score,  -- Default severity
+        'general' as problem_category,  -- Default category
         loaded_at
     from review_problems rp
-    cross join json_array_elements(rp.r_problems) as problem
-    where trim(json_extract_path_text(problem.value, 'problem')) != ''
+    cross join jsonb_array_elements_text(
+        case 
+            when rp.r_problems is null then '[]'::jsonb
+            when jsonb_typeof(rp.r_problems) = 'array' then rp.r_problems
+            else '[]'::jsonb
+        end
+    ) as problem_text
+    where problem_text is not null 
+      and trim(problem_text) != ''
+      and trim(problem_text) != 'null'
 ),
 
 -- Clean and standardize problems

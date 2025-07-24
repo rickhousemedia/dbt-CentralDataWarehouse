@@ -41,13 +41,25 @@ normalized_barriers as (
         ads_meta_id,
         ad_creative_id,
         ad_account_id,
-        trim(json_extract_path_text(barrier.value, 'barrier')) as barrier,
-        trim(json_extract_path_text(barrier.value, 'solution_strength')) as solution_strength,
-        trim(json_extract_path_text(barrier.value, 'addressability')) as addressability_score,
+        trim(jsonb_extract_path_text(barrier.value, 'barrier')) as barrier,
+        trim(jsonb_extract_path_text(barrier.value, 'solution_strength')) as solution_strength,
+        trim(jsonb_extract_path_text(barrier.value, 'addressability')) as addressability_score,
         loaded_at
     from ad_with_account awa
-    cross join json_array_elements(awa.barriers) as barrier
-    where trim(json_extract_path_text(barrier.value, 'barrier')) != ''
+    cross join jsonb_array_elements(
+        case 
+            when awa.barriers is null then '[]'::jsonb
+            when jsonb_typeof(awa.barriers) = 'array' then awa.barriers
+            when jsonb_typeof(awa.barriers) = 'string' then 
+                case 
+                    when trim(awa.barriers::text, '"') ~ '^\[.*\]$' then trim(awa.barriers::text, '"')::jsonb
+                    else '[]'::jsonb
+                end
+            else '[]'::jsonb
+        end
+    ) as barrier
+    where jsonb_extract_path_text(barrier.value, 'barrier') is not null 
+      and trim(jsonb_extract_path_text(barrier.value, 'barrier')) != ''
 ),
 
 -- Clean and standardize barriers

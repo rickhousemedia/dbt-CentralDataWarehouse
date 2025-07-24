@@ -50,14 +50,11 @@ unified_personas as (
         confidence_score,
         source_system,
         mention_count,
-        case 
-            when source_system = 'review' then review_count
-            else ad_count
-        end as entity_count,
+        review_count as entity_count,
         avg_confidence_score,
         latest_mention_date,
         earliest_mention_date,
-        null as review_count,
+        review_count,
         null as ad_count
     from review_personas
     
@@ -70,15 +67,12 @@ unified_personas as (
         confidence_score,
         source_system,
         mention_count,
-        case 
-            when source_system = 'review' then review_count
-            else ad_count
-        end as entity_count,
+        ad_count as entity_count,
         avg_confidence_score,
         latest_mention_date,
         earliest_mention_date,
         null as review_count,
-        null as ad_count
+        ad_count
     from ad_personas
 ),
 

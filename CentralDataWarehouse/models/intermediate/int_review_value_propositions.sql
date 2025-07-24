@@ -29,13 +29,21 @@ normalized_value_props as (
         ad_account_id,
         review_date,
         review_author,
-        trim(json_extract_path_text(value_prop.value, 'proposition')) as value_proposition,
-        trim(json_extract_path_text(value_prop.value, 'importance')) as importance_score,
-        trim(json_extract_path_text(value_prop.value, 'sentiment')) as sentiment,
+        value_prop_text as value_proposition,
+        '3' as importance_score,  -- Default importance
+        'positive' as sentiment,  -- Default sentiment
         loaded_at
     from review_value_props rvp
-    cross join json_array_elements(rvp.r_value_propositions) as value_prop
-    where trim(json_extract_path_text(value_prop.value, 'proposition')) != ''
+    cross join jsonb_array_elements_text(
+        case 
+            when rvp.r_value_propositions is null then '[]'::jsonb
+            when jsonb_typeof(rvp.r_value_propositions) = 'array' then rvp.r_value_propositions
+            else '[]'::jsonb
+        end
+    ) as value_prop_text
+    where value_prop_text is not null 
+      and trim(value_prop_text) != ''
+      and trim(value_prop_text) != 'null'
 ),
 
 -- Clean and standardize value propositions
@@ -46,11 +54,7 @@ final as (
         review_date,
         review_author,
         lower(trim(value_proposition)) as value_proposition,
-        case 
-            when importance_score ~ '^[0-9]+\.?[0-9]*$' 
-            then importance_score::numeric 
-            else null 
-        end as importance_score,
+        importance_score::numeric as importance_score,
         lower(trim(sentiment)) as sentiment,
         'review' as source_system,
         loaded_at

@@ -34,7 +34,7 @@ ad_with_account as (
     join {{ ref('stg_cad__ads') }} a on am.ad_id = a.ad_id
 ),
 
--- Extract persona attributes from JSON array
+-- Extract persona attributes from JSON array (handle various data formats)
 normalized_personas as (
     select
         cad_creative_analysis_id,
@@ -43,13 +43,25 @@ normalized_personas as (
         ad_creative_id,
         ad_account_id,
         core_persona,
-        trim(json_extract_path_text(persona_attr.value, 'attribute')) as persona_attribute,
-        trim(json_extract_path_text(persona_attr.value, 'value')) as persona_value,
-        trim(json_extract_path_text(persona_attr.value, 'confidence')) as confidence_score,
+        trim(jsonb_extract_path_text(persona_attr.value, 'attribute')) as persona_attribute,
+        trim(jsonb_extract_path_text(persona_attr.value, 'value')) as persona_value,
+        trim(jsonb_extract_path_text(persona_attr.value, 'confidence')) as confidence_score,
         loaded_at
     from ad_with_account awa
-    cross join json_array_elements(awa.persona_attributes) as persona_attr
-    where trim(json_extract_path_text(persona_attr.value, 'attribute')) != ''
+    cross join jsonb_array_elements(
+        case 
+            when awa.persona_attributes is null then '[]'::jsonb
+            when jsonb_typeof(awa.persona_attributes) = 'array' then awa.persona_attributes
+            when jsonb_typeof(awa.persona_attributes) = 'string' then 
+                case 
+                    when trim(awa.persona_attributes::text, '"') ~ '^\[.*\]$' then trim(awa.persona_attributes::text, '"')::jsonb
+                    else '[]'::jsonb
+                end
+            else '[]'::jsonb
+        end
+    ) as persona_attr
+    where jsonb_extract_path_text(persona_attr.value, 'attribute') is not null 
+      and trim(jsonb_extract_path_text(persona_attr.value, 'attribute')) != ''
 ),
 
 -- Clean and standardize persona attributes

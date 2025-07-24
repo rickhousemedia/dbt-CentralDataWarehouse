@@ -29,13 +29,21 @@ normalized_barriers as (
         ad_account_id,
         review_date,
         review_author,
-        trim(json_extract_path_text(barrier.value, 'barrier')) as barrier,
-        trim(json_extract_path_text(barrier.value, 'impact')) as impact_score,
-        trim(json_extract_path_text(barrier.value, 'type')) as barrier_type,
+        barrier_text as barrier,
+        '3' as impact_score,  -- Default impact
+        'general' as barrier_type,  -- Default type
         loaded_at
     from review_barriers rb
-    cross join json_array_elements(rb.r_barriers) as barrier
-    where trim(json_extract_path_text(barrier.value, 'barrier')) != ''
+    cross join jsonb_array_elements_text(
+        case 
+            when rb.r_barriers is null then '[]'::jsonb
+            when jsonb_typeof(rb.r_barriers) = 'array' then rb.r_barriers
+            else '[]'::jsonb
+        end
+    ) as barrier_text
+    where barrier_text is not null 
+      and trim(barrier_text) != ''
+      and trim(barrier_text) != 'null'
 ),
 
 -- Clean and standardize barriers
