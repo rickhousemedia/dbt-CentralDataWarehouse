@@ -12,14 +12,15 @@
 
 with review_personas as (
     select
-        review_id,
-        ad_account_id,
-        review_date,
-        review_author,
-        r_persona_attributes,
-        loaded_at
-    from {{ ref('stg_review__reviews') }}
-    where r_persona_attributes is not null
+        r.review_id,
+        aca.ad_account_id,
+        r.review_date,
+        r.review_author,
+        r.r_persona_attributes,
+        r.loaded_at
+    from {{ ref('stg_review__reviews') }} r
+    join {{ ref('stg_review__ad_creative_analysis') }} aca on r.review_id = aca.review_creative_analysis_id
+    where r.r_persona_attributes is not null
 ),
 
 -- Extract persona attributes from JSON array (handling simple string format)

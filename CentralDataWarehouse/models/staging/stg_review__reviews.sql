@@ -3,13 +3,10 @@
 -- This table contains key persona attributes extracted from customer reviews.
 
 with source as (
-
     select * from {{ source('raw_review_public', 'reviews') }}
-
 ),
 
 renamed as (
-
     select
         -- IDs
         id as review_id,
@@ -31,7 +28,6 @@ renamed as (
         current_timestamp as loaded_at
 
     from source
-
 )
 
 select * from renamed 

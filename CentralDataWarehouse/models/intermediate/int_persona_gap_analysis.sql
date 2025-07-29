@@ -5,8 +5,7 @@
     materialized='table',
     indexes=[
         {'columns': ['ad_account_id'], 'type': 'btree'},
-        {'columns': ['gap_priority'], 'type': 'btree'},
-        {'columns': ['opportunity_score'], 'type': 'btree'}
+        {'columns': ['gap_priority'], 'type': 'btree'}
     ]
 ) }}
 
@@ -50,8 +49,8 @@ gap_analysis as (
         rp.avg_confidence,
         rp.latest_review_date,
         rp.earliest_review_date,
-        null as persona_coverage,
-        0 as cross_system_alignment_score,
+        ap.persona_coverage,
+        coalesce(ap.cross_system_alignment_score, 0) as cross_system_alignment_score,
         null as review_account_name,
         null as review_account_id,
         'Unknown' as cad_account_name,
@@ -60,6 +59,7 @@ gap_analysis as (
         coalesce(ap.ad_count, 0) as ad_count,
         ap.performance_tier,
         ap.gap_analysis_category,
+        coalesce(ap.opportunity_score, 0) as opportunity_score,
         ap.avg_roas,
         ap.avg_ctr,
         ap.total_spend,

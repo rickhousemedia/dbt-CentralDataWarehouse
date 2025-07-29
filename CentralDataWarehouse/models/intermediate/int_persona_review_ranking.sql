@@ -14,8 +14,11 @@ with persona_counts as (
 ),
 
 total_reviews as (
-    select count(*) as total_unique_reviews
+    select
+        ad_account_id,
+        count(*) as total_unique_reviews
     from {{ ref('int_review_persona_attributes') }}
+    group by ad_account_id
 ),
 
 -- Add account information
@@ -28,13 +31,13 @@ persona_with_accounts as (
         tr.total_unique_reviews,
         (pc.review_count * 100.0 / tr.total_unique_reviews) as percentage
     from persona_counts pc
-    cross join total_reviews tr
-    left join {{ ref('stg_cad__ad_accounts') }} aa on pc.ad_account_id = aa.ad_account_id
+    join total_reviews tr on pc.ad_account_id = tr.ad_account_id
+    left join {{ ref('stg_cad__ad_accounts') }} aa on pc.ad_account_id = aa.meta_ad_account_id::bigint
 )
 
 select
     persona_attribute as persona_name,
-    coalesce(ad_account_name, 'Account ' || ad_account_id) as account_name,
+    ad_account_name as account_name,
     ad_account_id,
     review_count,
     percentage,
@@ -48,7 +51,7 @@ select
         else 'Minimal Volume'
     end as volume_category,
     
-    rank() over (order by review_count desc) as review_rank
+    rank() over (partition by ad_account_id order by review_count desc) as review_rank
 
 from persona_with_accounts
-order by review_count desc, persona_attribute 
+order by ad_account_id, review_count desc, persona_attribute 
