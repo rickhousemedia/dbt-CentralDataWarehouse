@@ -69,11 +69,12 @@ jobs:
     - name: Run dbt
       run: |
         cd CentralDataWarehouse
-        dbt run --target-path ../target
+        dbt run
         
     - name: Analyze results and send email
       run: |
-        python scripts/analyze_and_email_results.py
+        cd CentralDataWarehouse
+        python ../scripts/analyze_and_email_results.py
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
@@ -88,6 +89,6 @@ jobs:
       with:
         name: dbt-run-results
         path: |
-          target/run_results.json
-          target/manifest.json
+          CentralDataWarehouse/target/run_results.json
+          CentralDataWarehouse/target/manifest.json
         retention-days: 30
