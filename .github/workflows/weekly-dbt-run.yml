@@ -56,6 +56,18 @@ jobs:
           target: dev
         EOF
         
+    - name: Debug profiles.yml (remove in production)
+      run: |
+        echo "Contents of profiles.yml:"
+        cat ~/.dbt/profiles.yml
+        echo "Checking for empty values..."
+        if [ -z "${{ secrets.DBT_HOST }}" ]; then echo "DBT_HOST is empty"; fi
+        if [ -z "${{ secrets.DBT_USER }}" ]; then echo "DBT_USER is empty"; fi
+        if [ -z "${{ secrets.DBT_PASSWORD }}" ]; then echo "DBT_PASSWORD is empty"; fi
+        if [ -z "${{ secrets.DBT_PORT }}" ]; then echo "DBT_PORT is empty"; fi
+        if [ -z "${{ secrets.DBT_DBNAME }}" ]; then echo "DBT_DBNAME is empty"; fi
+        if [ -z "${{ secrets.DBT_SCHEMA }}" ]; then echo "DBT_SCHEMA is empty"; fi
+        
     - name: Change to dbt project directory
       run: cd CentralDataWarehouse
       
