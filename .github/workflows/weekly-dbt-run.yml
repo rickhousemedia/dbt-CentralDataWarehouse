@@ -8,6 +8,7 @@ on:
 jobs:
   dbt-run:
     runs-on: ubuntu-latest
+    environment: dbt_run
     
     steps:
     - name: Checkout code
@@ -44,12 +45,12 @@ jobs:
           outputs:
             dev:
               type: postgres
-              host: ${{ secrets.DBT_HOST }}
-              user: ${{ secrets.DBT_USER }}
-              password: ${{ secrets.DBT_PASSWORD }}
+              host: "${{ secrets.DBT_HOST }}"
+              user: "${{ secrets.DBT_USER }}"
+              password: "${{ secrets.DBT_PASSWORD }}"
               port: ${{ secrets.DBT_PORT }}
-              dbname: ${{ secrets.DBT_DBNAME }}
-              schema: ${{ secrets.DBT_SCHEMA }}
+              dbname: "${{ secrets.DBT_DBNAME }}"
+              schema: "${{ secrets.DBT_SCHEMA }}"
               threads: 4
               keepalives_idle: 0
           target: dev
