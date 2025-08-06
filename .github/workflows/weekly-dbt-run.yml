@@ -1,0 +1,93 @@
+name: Weekly dbt Run with AI Summary
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Run every Monday at 9 AM UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  dbt-run:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install openai smtplib-ssl
+        
+    - name: Install additional Python packages
+      run: |
+        pip install openai==1.58.1
+        
+    - name: Create profiles directory
+      run: |
+        mkdir -p ~/.dbt
+        
+    - name: Create dbt profiles.yml
+      run: |
+        cat << EOF > ~/.dbt/profiles.yml
+        CentralDataWarehouse:
+          outputs:
+            dev:
+              type: postgres
+              host: ${{ secrets.DBT_HOST }}
+              user: ${{ secrets.DBT_USER }}
+              password: ${{ secrets.DBT_PASSWORD }}
+              port: ${{ secrets.DBT_PORT }}
+              dbname: ${{ secrets.DBT_DBNAME }}
+              schema: ${{ secrets.DBT_SCHEMA }}
+              threads: 4
+              keepalives_idle: 0
+          target: dev
+        EOF
+        
+    - name: Change to dbt project directory
+      run: cd CentralDataWarehouse
+      
+    - name: Run dbt deps
+      run: |
+        cd CentralDataWarehouse
+        dbt deps
+        
+    - name: Run dbt
+      run: |
+        cd CentralDataWarehouse
+        dbt run --target-path ../target
+        
+    - name: Analyze results and send email
+      run: |
+        python scripts/analyze_and_email_results.py
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+        EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: dbt-run-results
+        path: |
+          target/run_results.json
+          target/manifest.json
+        retention-days: 30
