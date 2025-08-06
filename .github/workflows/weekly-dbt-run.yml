@@ -30,11 +30,8 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install -r requirements.txt
-        pip install openai smtplib-ssl
-        
-    - name: Install additional Python packages
-      run: |
         pip install openai==1.58.1
+        
         
     - name: Create profiles directory
       run: |
